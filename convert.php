@@ -1,7 +1,7 @@
 <?php
 /**
  * 本文件是為第三方應用預留的. 本插件中不會載入和使用這個文件.
- * 
+ *
  * 通過include本文件, 你可以使用中文繁簡轉換函數zhconversion($str, $variant)
  * 如果$_GET['doconversion']或$_POST['doconversion'])有設置, 本文件將獲取$_REQUEST['data']并把其轉換為$_REQUEST['variant']語言后輸出.
  *
@@ -29,7 +29,7 @@ $wpcc_langs = array(
 if( empty($nochineseconversion) && empty($GLOBALS['nochineseconversion']) ) {
 if( ( isset($_GET['dochineseconversion']) || isset($_POST['dochineseconversion']) ) &&
 	isset($_REQUEST['data']) )
-{	$wpcc_data = get_magic_quotes_gpc() ? stripslashes($_REQUEST['data']) : $_REQUEST['data'];
+{	$wpcc_data = $_REQUEST['data'];
 	$wpcc_variant = str_replace('_', '-', strtolower(trim($_REQUEST['variant'])));
 	if( !empty($wpcc_variant) && in_array($wpcc_variant, array('zh-hans', 'zh-hant', 'zh-cn', 'zh-hk', 'zh-sg', 'zh-tw', 'zh-my', 'zh-mo')) )
 		echo zhconversion($wpcc_data, $wpcc_variant);

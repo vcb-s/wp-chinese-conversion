@@ -3,7 +3,7 @@
 Plugin Name: WP Chinese Conversion
 Plugin URI: https://oogami.name/project/wpcc/
 Description: Adds the language conversion function between Chinese Simplified and Chinese Traditional to your WP Blog.
-Version: 1.1.15
+Version: 1.1.16
 Author: Ono Oogami
 Author URI: https://oogami.name/
 */
@@ -43,7 +43,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 //define('WPCC_DEBUG', true); $wpcc_deubg_data = array(); //uncomment this line to enable debug
 define('WPCC_ROOT_URL', WP_PLUGIN_URL . '/' . str_replace(basename( __FILE__), "", plugin_basename(__FILE__)));
-define('WPCC_VERSION', '1.1.15');
+define('WPCC_VERSION', '1.1.16');
 
 $wpcc_options = get_option('wpcc_options');
 // /**********************
@@ -311,8 +311,8 @@ function wpcc_insert_query_vars($vars) {
  *
  */
 class Wpcc_Widget extends WP_Widget {
-	function Wpcc_Widget() {
-		$this->WP_Widget('widget_wpcc', 'Chinese Conversion', array('classname' => 'widget_wpcc', 'description' =>'Chinese Conversion Widget'));
+	function __construct() {
+		parent::__construct('widget_wpcc', 'Chinese Conversion', array('classname' => 'widget_wpcc', 'description' =>'Chinese Conversion Widget'));
 	}
 
 	function widget($args, $instance) {
@@ -1039,21 +1039,26 @@ function wpcc_filter_search_rule($where) {
 		return $where;//如果搜索关键字中不含中文字符, 直接返回
 
 	wpcc_load_conversion_table();
-
+	
+	$placeholder = '%';
+	if(method_exists($wpdb, 'placeholder_escape')) {
+		$placeholder = $wpdb->placeholder_escape("%");
+		// echo("pe exists: " . $placeholder . '<br />');
+	}
 	$sql = '';
 	$and1 = '';
 	$original = '';//Wordpress原始搜索sql代码中 post_title和post_content like '%keyword%'的部分,本函数最后需要找出原始sql代码中这部分并予以替换, 所以必须在过程中重新生成一遍,
 	foreach( $wp_query->query_vars['search_terms'] as $value ) {
 		$value = addslashes_gpc($value);
-		$original .= "{$and1}(($wpdb->posts.post_title LIKE '%{$value}%') OR ($wpdb->posts.post_excerpt LIKE '%{$value}%') OR ($wpdb->posts.post_content LIKE '%{$value}%'))";
+		$original .= "{$and1}(($wpdb->posts.post_title LIKE '{$placeholder}{$value}{$placeholder}') OR ($wpdb->posts.post_excerpt LIKE '{$placeholder}{$value}{$placeholder}') OR ($wpdb->posts.post_content LIKE '{$placeholder}{$value}{$placeholder}'))";
 		$valuea = zhconversion_all($value);
 		$valuea[] = $value;
     $sql .= "{$and1}( ";
     $or2 = '';
 		foreach($valuea as $v) {
-      $sql .= "{$or2}( ". $wpdb->prefix ."posts.post_title LIKE '%" . $v . "%') ";
-      $sql .= " OR ( ". $wpdb->prefix ."posts.post_content LIKE '%" . $v . "%') ";
-      $sql .= " OR ( ". $wpdb->prefix ."posts.post_excerpt LIKE '%" . $v . "%') ";
+      $sql .= "{$or2}( ". $wpdb->prefix ."posts.post_title LIKE '{$placeholder}" . $v . "{$placeholder}') ";
+      $sql .= " OR ( ". $wpdb->prefix ."posts.post_content LIKE '{$placeholder}" . $v . "{$placeholder}') ";
+      $sql .= " OR ( ". $wpdb->prefix ."posts.post_excerpt LIKE '{$placeholder}" . $v . "{$placeholder}') ";
       $or2 = ' OR ';
 		}
 		$sql .= ' ) ';
@@ -1061,7 +1066,7 @@ function wpcc_filter_search_rule($where) {
 	}
 
 	// debug
-	//echo("Where: ". $where . "<br /><br />Search: " . $original . "<br /><br />Replace with: $sql");die();
+	// echo("Where: ". $where . "<br /><br />Search: " . $original . "<br /><br />Replace with: $sql");die();
 
 	if(empty($sql))
 		return $where;
@@ -1347,6 +1352,22 @@ function wpcc_body_class($classes) {
 	return $classes;
 }
 add_filter("body_class", "wpcc_body_class");
+
+/**
+ * 自動修改html tag 的 lang=""標籤為當前中文語言
+ * @since 1.1.16
+ *
+ */
+function wpcc_locale($output, $doctype = 'html') {
+	global $wpcc_target_lang, $wpcc_langs;
+	$lang = get_bloginfo('language');
+	if($wpcc_target_lang && strpos($lang, 'zh-') === 0) {
+		$lang = $wpcc_langs[$wpcc_target_lang][3];
+		$output = preg_replace('/lang="[^"]+"/', "lang=\"{$lang}\"", $output);
+	}
+	return $output;
+}
+add_filter('language_attributes', 'wpcc_locale');
 
 /**
  * add a WPCC_NC button to html editor toolbar.

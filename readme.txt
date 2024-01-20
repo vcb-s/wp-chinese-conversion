@@ -3,8 +3,8 @@ Contributors: Ono Oogami
 Donate link: https://oogami.name/donate/
 Tags: chinese, 中文, 繁体, 简体, 繁简转换, Chinese Simplified, Chinese Traditional, widget, sidebar
 Requires at least: 4.5
-Tested up to: 4.5
-Stable tag: 1.1.15
+Tested up to: 4.8.3
+Stable tag: 1.1.16
 
 Adds the language conversion function between Chinese Simplified and Chinese Traditional to your WP Blog. Released under GPL license.
 
@@ -15,10 +15,10 @@ This plugin is designed for Chinese bloggers. It adds the language conversion fu
 
 使用方法: 激活插件后到侧边栏添加本插件的Widget即可. 插件将在后台"Settings"菜单里增加"Chinese Conversion"子菜单. 你可以到[我的博客](https://oogami.name/ "Demo Link")查看演示, 侧边栏的右上方为本插件输出的Widget效果. (CSS是另加的)
 
-最新稳定版本: Version 1.1.15
+最新稳定版本: Version 1.1.16
 
-* 修复 Wordpress 4.5 下搜索关键字繁简自动转换失效问题.
-* 修复一些其它 bug.
+* 修复 Wordpress 4.8.3 下搜索关键字繁简自动转换失效问题.
+* 自动修改页面html的lang=""属性为合适的中文语言.
 
 术语定义:
 
@@ -95,6 +95,11 @@ III. 这个插件是作者为自己的[Blog](https://oogami.name/ "Author Homepa
 熟悉Wordpress, LAMP和Blog的相关技术和文化; 会一直维护本插件并定期发布稳定版本, 保持与最新版Wordpress的兼容性.
 
 == Changelog ==
+
+= 1.1.16 =
+* 2017.11.07
+* 修复 Wordpress 4.8.3 下搜索关键字繁简自动转换失效问题.
+* 自动修改页面html的lang=""属性为合适的中文语言.
 
 = 1.1.15 =
 * 2016.04.22
